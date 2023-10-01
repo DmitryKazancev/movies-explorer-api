@@ -7,4 +7,4 @@
 
 IP 51.250.13.209
 
-Backend https://nomoredomainsrocks.ru/sign-in
+Backend https://api.17sprint.nomoredomainsrocks.ru/
