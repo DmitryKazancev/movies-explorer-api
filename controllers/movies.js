@@ -48,9 +48,10 @@ module.exports.addMovie = (req, res, next) => {
 
 // Get movies controller
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  const { _id: userId } = req.user;
+  Movie.find({ owner: userId })
     .populate(['owner'])
-    .then((users) => res.status(200).send(users))
+    .then((movies) => res.status(200).send(movies))
     .catch(next);
 };
 

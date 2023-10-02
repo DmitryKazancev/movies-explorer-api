@@ -61,11 +61,13 @@ module.exports.editUserData = (req, res, next) => {
   if (req.user._id) {
     User.findByIdAndUpdate(req.user._id, { name, email }, { new: 'true', runValidators: 'true' })
       .then((user) => {
-        res.send(user);
+        res.status(200).send(user);
       })
       .catch((err) => {
         if (err.name === 'ValidationError') {
           next(new BadRequest(err.message));
+        } else if (err.code === 11000) {
+          next(new ConflictStatus('User create yet'));
         } else {
           next(err);
         }
