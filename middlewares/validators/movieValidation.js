@@ -13,13 +13,13 @@ const movieInfoValidation = celebrate({
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
     thumbnail: Joi.string().required().pattern(httpRegex),
-    movieId: Joi.string().required(),
+    movieId: Joi.number().required(),
   }),
 });
 
 const movieIdValidation = celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().required(),
+    _id: Joi.string().hex().length(24).required(),
   }),
 });
 
