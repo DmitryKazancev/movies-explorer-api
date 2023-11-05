@@ -27,7 +27,6 @@ module.exports.addMovie = (req, res, next) => {
     .then((movie) => {
       Movie.findById(movie._id)
         .orFail()
-        .populate('owner')
         .then((data) => res.status(201).send(data))
         .catch((err) => {
           if (err.name === 'CastError') {
@@ -50,38 +49,31 @@ module.exports.addMovie = (req, res, next) => {
 module.exports.getMovies = (req, res, next) => {
   const { _id: userId } = req.user;
   Movie.find({ owner: userId })
-    .populate(['owner'])
     .then((movies) => res.status(200).send(movies))
     .catch(next);
 };
 
 // Delete movie controller
 module.exports.deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.movieId)
+  Movie.findOne({ movieId: req.params._id, owner: req.user._id })
     .then((movie) => {
-      if (!movie.owner.equals(req.user._id)) {
-        throw new ForbiddenStatus('Not permission for movie');
+      if (!movie) {
+        next(new NotFound('Movie not found'));
+        return;
+      }
+      if (movie.owner._id.toString() !== req.user._id) {
+        next(new ForbiddenStatus('Not permission for movie'));
+        return;
       }
       Movie.deleteOne(movie)
-        .orFail()
         .then(() => {
-          res.send({ message: 'Movie remove' });
+          Movie.find({ owner: req.user._id })
+            .then((movies) => {
+              res.send(movies);
+            })
+            .catch(next);
         })
-        .catch((err) => {
-          if (err.name === 'CastError') {
-            next(new BadRequest('Incorrect movie id'));
-          } else if (err.name === 'DocumentNotFoundError') {
-            next(new NotFound('Movie not found'));
-          } else {
-            next(err);
-          }
-        });
+        .catch(next);
     })
-    .catch((err) => {
-      if (err.name === 'TypeError') {
-        next(new NotFound('Incorrect movie id'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };

@@ -14,7 +14,7 @@ const {
 // Routes for movies
 router.get('/', getMovies);
 
-router.delete('/:movieId', movieIdValidation, deleteMovie);
+router.delete('/:_id', movieIdValidation, deleteMovie);
 
 router.post('/', movieInfoValidation, addMovie);
 
